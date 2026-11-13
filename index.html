@@ -462,7 +462,7 @@ function confirmReceipt(idx) {
     } else notify("❌ Неверный код", "Запроси код подтверждения у админа <b>@FarmGoldEzz</b> после выкупа скина.");
 }
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-fuconst liveNicks = ["Kizaru_SO2", "SniperPro", "Danya777", "Vortex", "GhostKZ", "AwpKing", "Shadow", "BrawlTop", "NeonPlay", "SkillMaster", "ZeroTwo"];
+const liveNicks = ["Kizaru_SO2", "SniperPro", "Danya777", "Vortex", "GhostKZ", "AwpKing", "Shadow", "BrawlTop", "NeonPlay", "SkillMaster", "ZeroTwo"];
 let liveDrops = [];
 function addLiveDrop(skin, user) {
     liveDrops.unshift({ skin, user });
@@ -479,7 +479,7 @@ function spawnBotDrop() {
 }
 for (let i = 0; i < 8; i++) spawnBotDrop();
 setInterval(spawnBotDrop, 4500);
-    nction closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     save(); renderCases();
 </script>
 <footer style="max-width:900px;margin:30px auto 0;padding:15px;text-align:center;color:#94a3b8;font-size:12px;border-top:1px solid #1e2f5c;">
