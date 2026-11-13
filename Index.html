@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MineEze — Кейсы и Апгрейды</title>
+<style>
+:root { --bg: #08080a; --card: #121217; --gold: #f5b014; --muted: #8e8e9a; --border: #262630; --green: #22c55e; }
+body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; padding-bottom: 40px; }
+header { background: var(--card); border-bottom: 2px solid var(--gold); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.logo { font-size: 22px; font-weight: 900; color: var(--gold); letter-spacing: 1px; cursor: pointer; text-shadow: 0 0 10px rgba(245,176,20,0.4); }
+nav { display: flex; gap: 5px; flex-wrap: wrap; }
+.nav-btn { background: #1a1a22; border: 1px solid var(--border); color: var(--muted); padding: 7px 10px; font-weight: bold; font-size: 13px; border-radius: 8px; cursor: pointer; }
+.nav-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.balance-box { display: flex; align-items: center; gap: 8px; background: #09090c; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--gold); }
+.balance-amount { font-weight: bold; color: var(--gold); }
+.gold-btn { background: var(--gold); color: #000; border: none; padding: 9px 15px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+.gold-btn:disabled { background: #333; color: #777; }
+.dark-btn { background: #22222b; color: #fff; border: 1px solid var(--border); padding: 9px 15px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+.container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.cases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+.case-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; }
+.case-card:hover { border-color: var(--gold); }
+.case-icon { font-size: 50px; margin-bottom: 8px; }
+.case-title { font-size: 18px; font-weight: bold; }
+.case-range { font-size: 12px; color: var(--muted); margin: 6px 0 12px; }
+.case-price-tag { display: inline-block; color: var(--gold); border: 1px solid var(--gold); padding: 4px 14px; border-radius: 15px; font-weight: bold; }
+.case-page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+.roulette-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
+.roulette-window { position: relative; height: 145px; background: #08080a; border: 2px solid var(--gold); border-radius: 8px; overflow: hidden; margin: 15px 0; }
+.pointer { position: absolute; top: 0; left: 50%; width: 3px; height: 100%; background: var(--gold); z-index: 10; }
+.track { display: flex; align-items: center; height: 100%; }
+.skin-card { min-width: 140px; height: 120px; margin: 0 5px; background: #17171f; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; box-sizing: border-box; border-bottom: 4px solid gray; position: relative; }
+.common { border-color: #9ca3af; } .uncommon { border-color: #60a5fa; } .rare { border-color: #3b82f6; } .epic { border-color: #a855f7; } .legendary { border-color: #ec4899; } .arcane { border-color: #ef4444; }
+.chance-badge { position: absolute; top: 4px; right: 4px; background: #000; color: var(--gold); font-size: 10px; padding: 2px 5px; border-radius: 4px; }
+.skin-emoji { font-size: 32px; } .skin-name { font-size: 11px; font-weight: bold; text-align: center; margin: 3px 0; } .skin-price { font-size: 12px; color: var(--gold); font-weight: bold; }
+.contents-grid, .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 10px; margin-top: 12px; }
+.upgrade-arena { display: grid; grid-template-columns: 1fr 200px 1fr; gap: 15px; align-items: center; background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+.upgrade-slot { height: 140px; background: #0d0d11; border: 2px dashed var(--border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); font-size: 13px; }
+.upgrade-center { display: flex; flex-direction: column; align-items: center; }
+.wheel-container { position: relative; width: 160px; height: 160px; margin-bottom: 10px; }
+.wheel-circle { width: 100%; height: 100%; border-radius: 50%; border: 5px solid var(--border); box-sizing: border-box; background: conic-gradient(var(--gold) 0deg, #1a1a22 0deg); display: flex; align-items: center; justify-content: center; }
+.wheel-inner { width: 105px; height: 105px; background: var(--card); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; }
+.arrow-spinner { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+.arrow-head { width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 16px solid #fff; margin: -5px auto 0; }
+.upgrade-lists, .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.list-box, .bonus-card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
+.sort-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 5px; flex-wrap: wrap; }
+.sort-btn { background: #1e1e26; border: 1px solid var(--border); color: var(--gold); padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; }
+.mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 240px; overflow-y: auto; }
+.selectable { cursor: pointer; }
+.promo-input { width: 100%; padding: 10px; background: #08080a; border: 1px solid var(--border); color: #fff; border-radius: 6px; margin: 10px 0; box-sizing: border-box; }
+.inv-actions { display: flex; gap: 4px; margin-top: 8px; width: 100%; }
+.btn-small { flex: 1; padding: 5px; font-size: 11px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.btn-sell { background: #262632; color: #fff; } .btn-withdraw { background: var(--gold); color: #000; }
+.hist-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.status-wait { color: var(--gold); font-weight: bold; font-size: 12px; } .status-done { color: var(--green); font-weight: bold; font-size: 12px; }
+.fortune-wrap { position: relative; width: 250px; height: 250px; margin: 20px auto; }
+.fortune-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 13px solid transparent; border-right: 13px solid transparent; border-top: 24px solid #fff; z-index: 10; filter: drop-shadow(0 0 6px #000); }
+.fortune-wheel { width: 100%; height: 100%; border-radius: 50%; border: 6px solid var(--gold); box-sizing: border-box; position: relative; overflow: hidden; background: conic-gradient(#1a1a22 0deg 60deg, #f5b014 60deg 120deg, #121217 120deg 180deg, #d97706 180deg 240deg, #f5b014 240deg 300deg, #ef4444 300deg 360deg); box-shadow: 0 0 25px rgba(245,176,20,0.25); }
+.f-label { position: absolute; top: 50%; left: 50%; width: 105px; transform-origin: 0 0; text-align: right; font-weight: 900; font-size: 13px; padding-right: 12px; box-sizing: border-box; pointer-events: none; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; z-index: 100; }
+.modal-box { background: var(--card); border: 2px solid var(--gold); padding: 20px; border-radius: 12px; max-width: 340px; width: 88%; text-align: center; }
+@media (max-width: 768px) { .upgrade-arena, .upgrade-lists, .bonus-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+    <div class="logo" onclick="switchTab('cases')">👑 MineEze</div>
+    <nav>
+        <button class="nav-btn active" id="nav-cases" onclick="switchTab('cases')">Кейсы</button>
+        <button class="nav-btn" id="nav-upgrade" onclick="switchTab('upgrade')">Апгрейд</button>
+        <button class="nav-btn" id="nav-bonuses" onclick="switchTab('bonuses')">Бонусы</button>
+        <button class="nav-btn" id="nav-inventory" onclick="switchTab('inventory')">Инвентарь (<span id="invCount">0</span>)</button>
+        <button class="nav-btn" id="nav-history" onclick="switchTab('history')">История</button>
+    </nav>
+    <div class="balance-box">
+        <span class="balance-amount"><span id="balance">50</span> G</span>
+        <button class="gold-btn" onclick="openModal('depositModal')">+</button>
+    </div>
+</header>
+<div class="container">
+    <div id="tab-cases" class="tab-content active"><h2>Выбери кейс</h2><div class="cases-grid" id="casesList"></div></div>
+    <div id="tab-case-open" class="tab-content">
+        <div class="case-page-header"><button class="dark-btn" onclick="switchTab('cases')">← Назад</button><h2 id="openCaseTitle" style="color:var(--gold);margin:0;">Кейс</h2><div style="width:60px;"></div></div>
+        <div class="roulette-box"><div class="roulette-window"><div class="pointer"></div><div class="track" id="track"></div></div><button class="gold-btn" id="spinBtn" onclick="spinCase()">Открыть за <span id="openCasePrice">0</span> G</button></div>
+        <h3>Содержимое кейса:</h3><div class="contents-grid" id="caseContentsGrid"></div>
+    </div>
+    <div id="tab-upgrade" class="tab-content">
+        <h2>Апгрейд скинов</h2>
+        <div class="upgrade-arena">
+            <div class="upgrade-slot" id="myUpgradeSlot">Выбери свой скин</div>
+            <div class="upgrade-center">
+                <div class="wheel-container"><div class="arrow-spinner" id="upgradeArrow"><div class="arrow-head"></div></div><div class="wheel-circle" id="upgradeWheel"><div class="wheel-inner"><span id="upgradeChance" style="font-size:20px;font-weight:bold;color:var(--gold);">0%</span><span style="font-size:10px;color:#8e8e9a;">ШАНС</span></div></div></div>
+                <button class="gold-btn" id="upgradeBtn" onclick="doUpgrade()" disabled>Апгрейд</button>
+            </div>
+            <div class="upgrade-slot" id="targetUpgradeSlot">Выбери цель</div>
+        </div>
+        <div class="upgrade-lists">
+            <div class="list-box">
+                <div class="sort-bar"><h4 style="margin:0;">Твой инвентарь</h4><button class="sort-btn" onclick="toggleSort('my')">Цена: <span id="sortMyLabel">по порядку</span></button></div>
+                <div class="mini-grid" id="upgradeMyInv"></div>
+            </div>
+            <div class="list-box">
+                <div class="sort-bar"><h4 style="margin:0;">Желаемый скин</h4><button class="sort-btn" onclick="toggleSort('target')">Цена: <span id="sortTargetLabel">дешёвые ↑</span></button></div>
+                <div class="mini-grid" id="upgradeTargets"></div>
+            </div>
+        </div>
+    </div>
+    <div id="tab-bonuses" class="tab-content">
+        <h2>Бонусы и пополнение</h2>
+        <div class="bonus-grid">
+            <div class="bonus-card"><h3>🎁 Ежедневный бонус</h3><p style="color:#8e8e9a;">Награда: <b style="color:var(--gold);">4 G</b> раз в 24 часа.</p><button class="gold-btn" id="dailyBtn" onclick="claimDaily()">Забрать 4 G</button></div>
+            <div class="bonus-card"><h3>🎡 Колесо удачи</h3><p style="color:#8e8e9a;">Испытай удачу раз в 24 часа и выиграй до <b style="color:var(--gold);">50 G</b>!</p><button class="gold-btn" onclick="switchTab('wheel')">Перейти к колесу →</button></div>
+            <div class="bonus-card" style="grid-column: 1 / -1;"><h3>🎟️ Промокод / Код пополнения</h3><input type="text" class="promo-input" id="promoInput" placeholder="Введи код..."><button class="gold-btn" onclick="applyPromo()">Применить</button></div>
+        </div>
+    </div>
+    <div id="tab-wheel" class="tab-content">
+        <div class="case-page-header"><button class="dark-btn" onclick="switchTab('bonuses')">← Назад</button><h2 style="color:var(--gold);margin:0;">Колесо удачи</h2><div style="width:60px;"></div></div>
+        <div class="roulette-box">
+            <p style="color:#8e8e9a;margin-top:0;">Крути бесплатно каждые 24 часа!</p>
+            <div class="fortune-wrap">
+                <div class="fortune-pointer"></div>
+                <div class="fortune-wheel" id="fortuneWheel">
+                    <div class="f-label" style="transform: rotate(-60deg) translateY(-50%); color:#8e8e9a;">Пусто</div>
+                    <div class="f-label" style="transform: rotate(0deg) translateY(-50%); color:#000;">10 G</div>
+                    <div class="f-label" style="transform: rotate(60deg) translateY(-50%); color:#8e8e9a;">Пусто</div>
+                    <div class="f-label" style="transform: rotate(120deg) translateY(-50%); color:#fff;">20 G</div>
+                    <div class="f-label" style="transform: rotate(180deg) translateY(-50%); color:#000;">10 G</div>
+                    <div class="f-label" style="transform: rotate(240deg) translateY(-50%); color:#fff;">50 G</div>
+                </div>
+            </div>
+            <button class="gold-btn" id="wheelSpinBtn" style="padding:12px 30px;font-size:16px;" onclick="spinFortune()">Крутить колесо</button>
+        </div>
+    </div>
+    <div id="tab-inventory" class="tab-content"><h2>Твой инвентарь</h2><div class="inv-grid" id="mainInventory"></div></div>
+    <div id="tab-history" class="tab-content">
+        <h2>История операций</h2>
+        <div style="display:flex;gap:8px;margin-bottom:15px;">
+            <button class="gold-btn" id="hBtnOpen" onclick="showHistSub('open')">Открытие кейсов</button>
+            <button class="dark-btn" id="hBtnWith" onclick="showHistSub('with')">Выводы</button>
+        </div>
+        <div id="histOpenList"></div>
+        <div id="histWithList" style="display:none;"></div>
+    </div>
+</div>
+<div class="modal" id="winModal"><div class="modal-box"><h3 style="color:var(--gold);">🎉 ВЫПАЛ СКИН!</h3><div id="winSkinDisplay" style="margin:15px 0;"></div><div style="display:flex;gap:10px;"><button class="dark-btn" id="winSellBtn" style="flex:1;">Продать</button><button class="gold-btn" id="winKeepBtn" style="flex:1;">В инвентарь</button></div></div></div>
+<div class="modal" id="depositModal"><div class="modal-box"><h3 style="color:var(--gold);">Пополнение голдой</h3><p style="font-size:14px;color:#8e8e9a;line-height:1.5;">1. Напиши админу <b>@FarmGoldEzz</b> в Telegram.<br>2. Выкупи указанный скин на рынке Standoff 2.<br>3. Получи одноразовый код и введи его во вкладке «Бонусы».</p><button class="gold-btn" onclick="closeModal('depositModal')">Понятно</button></div></div>
+<div class="modal" id="withdrawModal"><div class="modal-box"><h3 style="color:var(--gold);">Вывод скина</h3><p id="withdrawText" style="font-size:14px;color:#8e8e9a;line-height:1.5;"></p><div style="display:flex;gap:10px;margin-top:15px;"><button class="dark-btn" style="flex:1;" onclick="closeModal('withdrawModal')">Отмена</button><button class="gold-btn" id="confirmWithBtn" style="flex:1;">Подтвердить вывод</button></div></div></div>
+<div class="modal" id="msgModal"><div class="modal-box"><h3 id="msgTitle" style="color:var(--gold);margin-top:0;">Уведомление</h3><p id="msgText" style="font-size:14px;color:#fff;line-height:1.4;"></p><button class="gold-btn" onclick="closeModal('msgModal')">Понятно</button></div></div>
+<div class="modal" id="adminModal"><div class="modal-box">
+    <h3 style="color:var(--gold);margin-top:0;">🛠️ Админ-генератор кодов</h3>
+    <p style="font-size:12px;color:#8e8e9a;margin-bottom:5px;">1. Создать бесконечный код пополнения:</p>
+    <div style="display:flex;gap:5px;margin-bottom:8px;"><input type="number" id="admSum" placeholder="Сумма G" style="flex:1;padding:8px;background:#08080a;border:1px solid #262630;color:#fff;border-radius:6px;"><button class="gold-btn" onclick="genPayCode()">Создать</button></div>
+    <div id="admPayOut" style="background:#08080a;padding:8px;border-radius:6px;color:var(--gold);font-weight:bold;margin-bottom:15px;user-select:all;">Здесь появится код</div>
+    <p style="font-size:12px;color:#8e8e9a;margin-bottom:5px;">2. Код подтверждения вывода по заявке:</p>
+    <div style="display:flex;gap:5px;margin-bottom:8px;"><input type="number" id="admOrd" placeholder="Номер (напр. 204)" style="flex:1;padding:8px;background:#08080a;border:1px solid #262630;color:#fff;border-radius:6px;"><button class="gold-btn" onclick="genOrdCode()">Узнать</button></div>
+    <div id="admOrdOut" style="background:#08080a;padding:8px;border-radius:6px;color:var(--green);font-weight:bold;margin-bottom:15px;user-select:all;">Здесь появится код OK...</div>
+    <button class="dark-btn" style="width:100%;" onclick="closeModal('adminModal')">Закрыть</button>
+</div></div>
+<script>
+const allSkins = [
+    { id: 1, name: "P350 «Forest»", price: 2, rarity: "common", emoji: "🔫" }, { id: 2, name: "SM1014 «Path»", price: 4, rarity: "common", emoji: "🔫" },
+    { id: 3, name: "MP5 «Project»", price: 6, rarity: "uncommon", emoji: "🔫" }, { id: 4, name: "MP7 «Offroad»", price: 8, rarity: "uncommon", emoji: "🔫" },
+    { id: 5, name: "F/S «Venom»", price: 12, rarity: "rare", emoji: "🔫" }, { id: 6, name: "G22 «Nest»", price: 14, rarity: "rare", emoji: "🔫" },
+    { id: 7, name: "Deagle «Morgan»", price: 20, rarity: "rare", emoji: "🔫" }, { id: 8, name: "P90 «Ghoul»", price: 28, rarity: "rare", emoji: "💥" },
+    { id: 9, name: "USP «Genesis»", price: 35, rarity: "epic", emoji: "💥" }, { id: 10, name: "M4 «Tiger»", price: 45, rarity: "epic", emoji: "💥" },
+    { id: 11, name: "M40 «Monster»", price: 65, rarity: "epic", emoji: "🎯" }, { id: 12, name: "UMP45 «Beast»", price: 75, rarity: "epic", emoji: "💥" },
+    { id: 13, name: "AWM «Gear»", price: 85, rarity: "legendary", emoji: "🎯" }, { id: 14, name: "AKR «Carbon»", price: 100, rarity: "legendary", emoji: "🔥" },
+    { id: 15, name: "AKR12 «Railgun»", price: 115, rarity: "legendary", emoji: "⚡" }, { id: 16, name: "M4 «Lizard»", price: 135, rarity: "legendary", emoji: "🦎" },
+    { id: 17, name: "AKR «Necro»", price: 150, rarity: "arcane", emoji: "💀" }, { id: 18, name: "M4 «Samurai»", price: 170, rarity: "arcane", emoji: "👹" },
+    { id: 19, name: "FAMAS «Fury»", price: 185, rarity: "legendary", emoji: "🔥" }, { id: 20, name: "Deagle «Orochi»", price: 210, rarity: "legendary", emoji: "🐉" },
+    { id: 21, name: "M16 «Winged»", price: 235, rarity: "legendary", emoji: "🦅" }, { id: 22, name: "AWM «Genesis»", price: 270, rarity: "arcane", emoji: "🎯" },
+    { id: 23, name: "AKR «Sport»", price: 310, rarity: "arcane", emoji: "🏎️" }, { id: 24, name: "AKR «Dragon»", price: 340, rarity: "arcane", emoji: "🔥" },
+    { id: 25, name: "AWM «Sport V2»", price: 370, rarity: "arcane", emoji: "🎯" }, { id: 26, name: "Gloves «Autumn»", price: 400, rarity: "arcane", emoji: "🧤" },
+    { id: 27, name: "M9 «Dragon Glass»", price: 460, rarity: "arcane", emoji: "🗡️" }, { id: 28, name: "M4A1 «Bubble»", price: 540, rarity: "arcane", emoji: "🍬" },
+    { id: 29, name: "Gloves «Geometric»", price: 680, rarity: "arcane", emoji: "🧤" }, { id: 30, name: "AKR «Treasure»", price: 850, rarity: "arcane", emoji: "💎" },
+    { id: 31, name: "jKommando «Luxury»", price: 1000, rarity: "arcane", emoji: "💎" }, { id: 32, name: "Scorpion «Star»", price: 1350, rarity: "arcane", emoji: "🗡️" },
+    { id: 33, name: "Kunai «Poison»", price: 1750, rarity: "arcane", emoji: "🗡️" }, { id: 34, name: "Karambit «Gold»", price: 2400, rarity: "arcane", emoji: "👑" },
+    { id: 35, name: "Butterfly «Legacy»", price: 3200, rarity: "arcane", emoji: "🦋" }
+];
+const cases = [
+    { id: 0, name: "Кейс «Стартовый»", price: 9, icon: "📦", range: "От 2 G до 100 G", drops: [
+        { id: 1, c: 34 }, { id: 2, c: 24 }, { id: 3, c: 16 }, { id: 4, c: 10 }, { id: 5, c: 6 }, { id: 6, c: 4 }, { id: 9, c: 3 }, { id: 10, c: 1.5 }, { id: 14, c: 1.5 }
+    ]},
+    { id: 1, name: "Кейс «Золотой»", price: 29, icon: "💼", range: "От 8 G до 150 G", drops: [
+        { id: 4, c: 30 }, { id: 5, c: 22 }, { id: 6, c: 16 }, { id: 7, c: 11 }, { id: 8, c: 8 }, { id: 9, c: 5 }, { id: 10, c: 3.5 }, { id: 13, c: 2.5 }, { id: 17, c: 2 }
+    ]},
+    { id: 2, name: "Кейс «Хищник»", price: 49, icon: "🐺", range: "От 12 G до 170 G", drops: [
+        { id: 5, c: 28 }, { id: 6, c: 20 }, { id: 7, c: 16 }, { id: 8, c: 12 }, { id: 9, c: 8.2 }, { id: 10, c: 6 }, { id: 11, c: 4 }, { id: 15, c: 3 }, { id: 18, c: 2.8 }
+    ]},
+    { id: 3, name: "Кейс «Олигарх»", price: 129, icon: "💎", range: "От 35 G до 1000 G", drops: [
+        { id: 9, c: 30 }, { id: 10, c: 22 }, { id: 12, c: 16 }, { id: 14, c: 12 }, { id: 17, c: 8 }, { id: 20, c: 6 }, { id: 23, c: 3.8 }, { id: 27, c: 1.5 }, { id: 29, c: 0.5 }, { id: 31, c: 0.2 }
+    ]},
+    { id: 4, name: "Кейс «Стабильный»", price: 299, icon: "👑", range: "От 150 G до 400 G", drops: [
+        { id: 17, c: 26 }, { id: 18, c: 20 }, { id: 19, c: 15 }, { id: 20, c: 11 }, { id: 21, c: 8 }, { id: 22, c: 6.6 }, { id: 23, c: 5 }, { id: 25, c: 4 }, { id: 26, c: 4.4 }
+    ]}
+];
+const _0x1a = {
+    "R0dGRg==": 200,
+    "TUUxMC1BMQ==": 10, "TUUxMC1CMg==": 10, "TUUxMC1DMw==": 10, "TUUxMC1ENA==": 10, "TUUxMC1FNQ==": 10,
+    "TUUyNS1BMQ==": 25, "TUUyNS1CMg==": 25, "TUUyNS1DMw==": 25, "TUUyNS1ENA==": 25, "TUUyNS1FNQ==": 25,
+    "TUU1MC1BMQ==": 50, "TUU1MC1CMg==": 50, "TUU1MC1DMw==": 50, "TUU1MC1ENA==": 50, "TUU1MC1FNQ==": 50,
+    "TUUxMDAtQTE=": 100, "TUUxMDAtQjI=": 100, "TUUxMDAtQzM=": 100, "TUUxMDAtRDQ=": 100, "TUUxMDAtRTU=": 100
+};
+let balance = Number(localStorage.getItem('me_bal')) || 10;
+let inv = JSON.parse(localStorage.getItem('me_inv')) || [];
+let promos = JSON.parse(localStorage.getItem('me_prm')) || [];
+let hOpen = JSON.parse(localStorage.getItem('me_ho')) || [];
+let hWith = JSON.parse(localStorage.getItem('me_hw')) || [];
+let curCase = null, spinning = false, upgrading = false, wheelSpinning = false, wonSkin = null, myIdx = null, targetSkin = null;
+let sortMyMode = 0, sortTargetMode = 1;
+
+function notify(title, text) {
+    document.getElementById('msgTitle').textContent = title;
+    document.getElementById('msgText').innerHTML = text;
+    openModal('msgModal');
+}
+function save() {
+    localStorage.setItem('me_bal', balance); localStorage.setItem('me_inv', JSON.stringify(inv));
+    localStorage.setItem('me_prm', JSON.stringify(promos)); localStorage.setItem('me_ho', JSON.stringify(hOpen));
+    localStorage.setItem('me_hw', JSON.stringify(hWith));
+    document.getElementById('balance').textContent = balance;
+    document.getElementById('invCount').textContent = inv.length;
+}
+function switchTab(t) {
+    if (spinning || upgrading || wheelSpinning) return;
+    document.querySelectorAll('.tab-content, .nav-btn').forEach(e => e.classList.remove('active'));
+    document.getElementById('tab-' + t).classList.add('active');
+    const nav = document.getElementById('nav-' + (t === 'case-open' ? 'cases' : (t === 'wheel' ? 'bonuses' : t)));
+    if (nav) nav.classList.add('active');
+    if (t === 'upgrade') renderUpgrade();
+    if (t === 'inventory') renderInv();
+    if (t === 'history') renderHist();
+}
+function renderCases() {
+    document.getElementById('casesList').innerHTML = cases.map(c => `<div class="case-card" onclick="openCase(${c.id})"><div class="case-icon">${c.icon}</div><div class="case-title">${c.name}</div><div class="case-range">${c.range}</div><div class="case-price-tag">${c.price} G</div></div>`).join('');
+}
+function openCase(id) {
+    curCase = cases.find(c => c.id === id);
+    document.getElementById('openCaseTitle').textContent = curCase.name;
+    document.getElementById('openCasePrice').textContent = curCase.price;
+    document.getElementById('caseContentsGrid').innerHTML = curCase.drops.map(d => {
+        const s = allSkins.find(x => x.id === d.id);
+        return `<div class="skin-card ${s.rarity}" style="min-width:auto;"><div class="chance-badge">${d.c}%</div><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
+    }).join('');
+    fillTrack(); switchTab('case-open');
+}
+function getDrop(cObj) {
+    let r = Math.random() * 100;
+    for (let d of cObj.drops) { if (r < d.c) return allSkins.find(s => s.id === d.id); r -= d.c; }
+    return allSkins.find(s => s.id === cObj.drops[0].id);
+}
+function fillTrack() {
+    const tr = document.getElementById('track'); tr.style.transition = 'none'; tr.style.transform = 'translateX(0px)';
+    tr.innerHTML = Array.from({ length: 30 }, () => { const s = getDrop(curCase); return `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`; }).join('');
+}
+function spinCase() {
+    if (spinning) return;
+    if (balance < curCase.price) return notify("Недостаточно голды", "Пополни баланс через <b>@FarmGoldEzz</b> или введи промокод во вкладке «Бонусы».");
+    balance -= curCase.price; save(); spinning = true; document.getElementById('spinBtn').disabled = true;
+    const tr = document.getElementById('track'); tr.style.transition = 'none'; tr.style.transform = 'translateX(0px)';
+    let html = '';
+    for (let i = 0; i < 45; i++) {
+        const s = getDrop(curCase); if (i === 35) wonSkin = s;
+        html += `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
+    }
+    tr.innerHTML = html;
+    setTimeout(() => {
+        const w = document.querySelector('.roulette-window').offsetWidth;
+        const pos = (35 * 150) - (w / 2) + 75 + (Math.floor(Math.random() * 70) - 35);
+        tr.style.transition = 'transform 5s cubic-bezier(0.12, 0.85, 0.2, 1)'; tr.style.transform = `translateX(-${pos}px)`;
+        setTimeout(() => {
+            spinning = false; document.getElementById('spinBtn').disabled = false;
+            hOpen.unshift({ cName: curCase.name, sName: wonSkin.name, price: wonSkin.price, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+            save();
+            document.getElementById('winSkinDisplay').innerHTML = `<div class="skin-card ${wonSkin.rarity}" style="margin:0 auto;width:160px;"><div class="skin-emoji">${wonSkin.emoji}</div><div class="skin-name">${wonSkin.name}</div><div class="skin-price">${wonSkin.price} G</div></div>`;
+            document.getElementById('winSellBtn').textContent = `Продать (${wonSkin.price} G)`;
+            document.getElementById('winSellBtn').onclick = () => { balance += wonSkin.price; save(); closeModal('winModal'); };
+            document.getElementById('winKeepBtn').onclick = () => { inv.push(wonSkin); save(); closeModal('winModal'); };
+            openModal('winModal');
+        }, 5100);
+    }, 50);
+}
+function toggleSort(who) {
+    if (who === 'my') {
+        sortMyMode = (sortMyMode + 1) % 3;
+        document.getElementById('sortMyLabel').textContent = sortMyMode === 0 ? 'по порядку' : (sortMyMode === 1 ? 'дешёвые ↑' : 'дорогие ↓');
+    } else {
+        sortTargetMode = sortTargetMode === 1 ? 2 : 1;
+        document.getElementById('sortTargetLabel').textContent = sortTargetMode === 1 ? 'дешёвые ↑' : 'дорогие ↓';
+    }
+    renderUpgrade();
+}
+function renderUpgrade() {
+    let myList = inv.map((s, i) => ({ ...s, origIdx: i }));
+    if (sortMyMode === 1) myList.sort((a, b) => a.price - b.price);
+    if (sortMyMode === 2) myList.sort((a, b) => b.price - a.price);
+    document.getElementById('upgradeMyInv').innerHTML = myList.length ? myList.map(s => `<div class="skin-card ${s.rarity} selectable" style="min-width:auto;" onclick="setMy(${s.origIdx})"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`).join('') : '<p style="color:#8e8e9a;font-size:12px;">Пусто</p>';
+
+    let tList = [...allSkins];
+    tList.sort((a, b) => sortTargetMode === 1 ? a.price - b.price : b.price - a.price);
+    document.getElementById('upgradeTargets').innerHTML = tList.map(s => `<div class="skin-card ${s.rarity} selectable" style="min-width:auto;" onclick="setTarget(${s.id})"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`).join('');
+}
+function setMy(i) {
+    if (upgrading) return; myIdx = i; const s = inv[i];
+    document.getElementById('myUpgradeSlot').innerHTML = `<div class="skin-emoji">${s.emoji}</div><b>${s.name}</b><div class="skin-price">${s.price} G</div>`; calcChance();
+}
+function setTarget(id) {
+    if (upgrading) return; targetSkin = allSkins.find(s => s.id === id);
+    document.getElementById('targetUpgradeSlot').innerHTML = `<div class="skin-emoji">${targetSkin.emoji}</div><b>${targetSkin.name}</b><div class="skin-price">${targetSkin.price} G</div>`; calcChance();
+}
+function calcChance() {
+    const btn = document.getElementById('upgradeBtn'), ch = document.getElementById('upgradeChance'), wh = document.getElementById('upgradeWheel');
+    if (myIdx === null || !targetSkin || targetSkin.price <= inv[myIdx].price) { ch.textContent = '0%'; wh.style.background = 'conic-gradient(var(--gold) 0deg, #1a1a22 0deg)'; btn.disabled = true; return; }
+    let c = Math.min(80, Math.max(0.01, Number(((inv[myIdx].price / targetSkin.price) * 85).toFixed(2))));
+    ch.textContent = c + '%'; wh.style.background = `conic-gradient(var(--gold) 0deg ${(c / 100) * 360}deg, #1a1a22 ${(c / 100) * 360}deg 360deg)`; btn.disabled = false; btn.dataset.c = c;
+}
+function doUpgrade() {
+    if (upgrading) return; upgrading = true;
+    const btn = document.getElementById('upgradeBtn'), arr = document.getElementById('upgradeArrow'); btn.disabled = true;
+    const c = Number(btn.dataset.c), stop = Math.random() * 360, win = stop <= (c / 100) * 360;
+    arr.style.transition = 'none'; arr.style.transform = 'rotate(0deg)';
+    setTimeout(() => {
+        arr.style.transition = 'transform 4s cubic-bezier(0.15, 0.85, 0.25, 1)'; arr.style.transform = `rotate(${1800 + stop}deg)`;
+        setTimeout(() => {
+            inv.splice(myIdx, 1);
+            if (win) { inv.push(targetSkin); notify("🎉 УСПЕШНЫЙ АПГРЕЙД!", `Поздравляем! Ты скрафтил <b>${targetSkin.name}</b> (${targetSkin.price} G)!`); }
+            else notify("💥 НЕУДАЧА", "Стрелка остановилась мимо золотой зоны. Скин сгорел.");
+            upgrading = false; myIdx = null; targetSkin = null;
+            document.getElementById('myUpgradeSlot').textContent = 'Выбери свой скин'; document.getElementById('targetUpgradeSlot').textContent = 'Выбери цель';
+            calcChance(); save(); renderUpgrade();
+        }, 4100);
+    }, 50);
+}
+function claimDaily() {
+    const last = localStorage.getItem('me_day');
+    if (last && Date.now() - last < 86400000) return notify("Бонус недоступен", "Ты уже забирал ежедневный бонус. Возвращайся завтра!");
+    balance += 4; localStorage.setItem('me_day', Date.now()); save(); notify("🎁 Бонус получен", "Тебе начислено <b>4 G</b> на баланс!");
+}
+function spinFortune() {
+    if (wheelSpinning) return;
+    const last = localStorage.getItem('me_wheel_day');
+    if (last && Date.now() - last < 86400000) return notify("Колесо недоступно", "Ты уже крутил Колесо удачи сегодня. Возвращайся через 24 часа!");
+    wheelSpinning = true;
+    const btn = document.getElementById('wheelSpinBtn'), wh = document.getElementById('fortuneWheel');
+    btn.disabled = true;
+    const r = Math.random() * 100;
+    let sector = 0, prize = 0;
+    if (r < 50) { sector = Math.random() < 0.5 ? 0 : 2; prize = 0; }
+    else if (r < 80) { sector = Math.random() < 0.5 ? 1 : 4; prize = 10; }
+    else if (r < 95) { sector = 3; prize = 20; }
+    else { sector = 5; prize = 50; }
+    const targetDeg = sector * 60 + 30 + (Math.floor(Math.random() * 36) - 18);
+    const stopAngle = (360 - targetDeg) % 360;
+    wh.style.transition = 'none'; wh.style.transform = 'rotate(0deg)';
+    setTimeout(() => {
+        wh.style.transition = 'transform 4.5s cubic-bezier(0.12, 0.85, 0.2, 1)';
+        wh.style.transform = `rotate(${2160 + stopAngle}deg)`;
+        setTimeout(() => {
+            wheelSpinning = false; btn.disabled = false;
+            localStorage.setItem('me_wheel_day', Date.now());
+            if (prize > 0) { balance += prize; save(); notify("🎉 Поздравляем!", `В Колесе удачи тебе выпало <b>${prize} G</b>!`); }
+            else notify("😔 Не повезло", "Выпал пустой сектор. Попробуй снова завтра!");
+        }, 4600);
+    }, 50);
+}
+function applyPromo() {
+    const inp = document.getElementById('promoInput'), code = inp.value.trim().toUpperCase();
+    if (!code) return;
+    if (code === 'ADMIN777') { inp.value = ''; return openModal('adminModal'); }
+    if (promos.includes(code)) return notify("Ошибка", "Этот код уже был активирован на твоём устройстве!");
+    const b64 = btoa(code);
+    if (_0x1a[b64]) {
+        const sum = _0x1a[b64]; balance += sum; promos.push(code); save(); inp.value = '';
+        return notify("✅ Успешно!", `Код <b>${code}</b> активирован! На баланс начислено <b>${sum} G</b>.`);
+    }
+    const p = code.split('-');
+    if (p.length === 4 && p[0] === 'ME') {
+        const sum = Number(p[1]), rnd = Number(p[2]), chk = Number(p[3]);
+        if (sum > 0 && rnd >= 10 && rnd <= 99 && chk === (sum * 17 + rnd * 139 + 912)) {
+            balance += sum; promos.push(code); save(); inp.value = '';
+            return notify("✅ Чек активирован!", `Пополнение на <b>${sum} G</b> прошло успешно!`);
+        }
+    }
+    notify("❌ Ошибка", "Неверный промокод или код пополнения!");
+}
+function genPayCode() {
+    const sum = Number(document.getElementById('admSum').value);
+    if (!sum || sum <= 0) return;
+    const rnd = Math.floor(10 + Math.random() * 90);
+    document.getElementById('admPayOut').textContent = `ME-${sum}-${rnd}-${sum * 17 + rnd * 139 + 912}`;
+}
+function genOrdCode() {
+    const ord = Number(document.getElementById('admOrd').value);
+    if (!ord || ord <= 0) return;
+    document.getElementById('admOrdOut').textContent = `OK${ord * 3 + 17}`;
+}
+function renderInv() {
+    const g = document.getElementById('mainInventory');
+    g.innerHTML = inv.length ? inv.map((s, i) => `<div class="skin-card ${s.rarity}" style="height:auto;"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div><div class="inv-actions"><button class="btn-small btn-sell" onclick="sell(${i})">Продать</button><button class="btn-small btn-withdraw" onclick="askWithdraw(${i})">Вывести</button></div></div>`).join('') : '<p style="color:#8e8e9a;">Инвентарь пуст.</p>';
+}
+function sell(i) { balance += inv[i].price; inv.splice(i, 1); save(); renderInv(); }
+function askWithdraw(i) {
+    const s = inv[i], kop = Math.floor(Math.random() * 89) + 10, exactPrice = `${s.price}.${kop}`;
+    document.getElementById('withdrawText').innerHTML = `1. Выстави любой недорогой скин на рынок Standoff 2 ровно за <b>${exactPrice} G</b>.<br>2. Нажми «Подтвердить вывод» ниже.<br>3. Скинь скрин лота и скрин истории выводов админу <b>@FarmGoldEzz</b>.`;
+    document.getElementById('confirmWithBtn').onclick = () => {
+        const orderId = Math.floor(100 + Math.random() * 900);
+        hWith.unshift({ id: orderId, name: s.name, exact: exactPrice, status: 'wait', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+        inv.splice(i, 1); save(); renderInv(); closeModal('withdrawModal');
+        notify("⏳ Заявка #" + orderId + " создана", `Скин списан. Перейди во вкладку «История» -> «Выводы», сделай скриншот и отправь <b>@FarmGoldEzz</b>.`);
+    };
+    openModal('withdrawModal');
+}
+function showHistSub(type) {
+    document.getElementById('histOpenList').style.display = type === 'open' ? 'block' : 'none';
+    document.getElementById('histWithList').style.display = type === 'with' ? 'block' : 'none';
+    document.getElementById('hBtnOpen').className = type === 'open' ? 'gold-btn' : 'dark-btn';
+    document.getElementById('hBtnWith').className = type === 'with' ? 'gold-btn' : 'dark-btn';
+}
+function renderHist() {
+    document.getElementById('histOpenList').innerHTML = hOpen.length ? hOpen.map(h => `<div class="hist-item"><div><b>${h.sName}</b><br><span style="font-size:12px;color:#8e8e9a;">${h.cName} • ${h.time}</span></div><div style="color:var(--gold);font-weight:bold;">${h.price} G</div></div>`).join('') : '<p style="color:#8e8e9a;">Ты ещё не открывал кейсы.</p>';
+    document.getElementById('histWithList').innerHTML = hWith.length ? hWith.map((w, idx) => `<div class="hist-item"><div><b>#${w.id} • ${w.name}</b> (${w.exact} G)<br><span style="font-size:12px;color:#8e8e9a;">${w.time}</span></div><div>${w.status === 'wait' ? `<span class="status-wait">⏳ В ожидании</span><div style="display:flex;gap:4px;margin-top:5px;"><input id="wCode_${idx}" placeholder="Код от админа" style="width:105px;padding:4px;background:#08080a;border:1px solid #262630;color:#fff;border-radius:4px;font-size:12px;"><button class="gold-btn" style="padding:4px 8px;font-size:12px;" onclick="confirmReceipt(${idx})">ОК</button></div>` : `<span class="status-done">✅ Выполнен</span>`}</div></div>`).join('') : '<p style="color:#8e8e9a;">Заявок на вывод пока нет.</p>';
+}
+function confirmReceipt(idx) {
+    const w = hWith[idx], val = document.getElementById('wCode_' + idx).value.trim().toUpperCase();
+    if (val === 'OK' + (w.id * 3 + 17)) {
+        const bonus = Math.floor(Math.random() * 6) + 5;
+        w.status = 'done'; balance += bonus; save(); renderHist();
+        notify("🎉 Вывод подтверждён!", `Статус заявки <b>#${w.id}</b> изменён на «Выполнен».<br>Твой бонус за подтверждение: <b>+${bonus} G</b>!`);
+    } else notify("❌ Неверный код", "Запроси код подтверждения у админа <b>@FarmGoldEzz</b> после выкупа скина.");
+}
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+save(); renderCases();
+</script>
+</body>
+</html>
