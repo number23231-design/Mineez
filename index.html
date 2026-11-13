@@ -67,6 +67,28 @@ nav { display: flex; gap: 5px; flex-wrap: wrap; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; z-index: 100; }
 .modal-box { background: var(--card); border: 2px solid var(--gold); padding: 20px; border-radius: 12px; max-width: 340px; width: 88%; text-align: center; }
 @media (max-width: 768px) { .upgrade-arena, .upgrade-lists, .bonus-grid { grid-template-columns: 1fr; } }
+.gold-btn { background: linear-gradient(135deg, #f5b014, #d97706); box-shadow: 0 4px 15px rgba(245, 176, 20, 0.35); transition: transform 0.15s, box-shadow 0.15s; }
+.gold-btn:active { transform: scale(0.96); }
+.case-card { background: linear-gradient(180deg, #132147 0%, #0b142e 100%); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; }
+.case-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(245, 176, 20, 0.25); }
+.skin-card.common { background: linear-gradient(180deg, #172038 0%, rgba(156,163,175,0.18) 100%); }
+.skin-card.uncommon { background: linear-gradient(180deg, #172038 0%, rgba(96,165,250,0.22) 100%); }
+.skin-card.rare { background: linear-gradient(180deg, #172038 0%, rgba(59,130,246,0.28) 100%); box-shadow: inset 0 -10px 20px rgba(59,130,246,0.2); }
+.skin-card.epic { background: linear-gradient(180deg, #172038 0%, rgba(168,85,247,0.3) 100%); box-shadow: inset 0 -10px 20px rgba(168,85,247,0.25); }
+.skin-card.legendary { background: linear-gradient(180deg, #172038 0%, rgba(236,72,153,0.32) 100%); box-shadow: inset 0 -12px 22px rgba(236,72,153,0.3); }
+.skin-card.arcane { background: linear-gradient(180deg, #172038 0%, rgba(239,68,68,0.38) 100%); box-shadow: inset 0 -14px 25px rgba(239,68,68,0.35); }
+.live-bar { background: #050917; border-bottom: 1px solid var(--border); padding: 7px 10px; display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.live-badge { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; font-size: 10px; font-weight: 900; padding: 4px 8px; border-radius: 6px; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+.live-dot { width: 6px; height: 6px; background: #ef4444; border-radius: 50%; animation: pulseDot 1.2s infinite; }
+@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.live-track { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.live-track::-webkit-scrollbar { display: none; }
+.live-item { min-width: 118px; background: var(--card); border: 1px solid var(--border); border-bottom-width: 3px; border-radius: 8px; padding: 5px 8px; display: flex; align-items: center; gap: 7px; animation: slideDrop 0.35s ease; }
+.live-item.common { border-bottom-color: #9ca3af; } .live-item.uncommon { border-bottom-color: #60a5fa; } .live-item.rare { border-bottom-color: #3b82f6; } .live-item.epic { border-bottom-color: #a855f7; } .live-item.legendary { border-bottom-color: #ec4899; } .live-item.arcane { border-bottom-color: #ef4444; }
+@keyframes slideDrop { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
+.live-info { overflow: hidden; text-align: left; }
+.live-sname { font-size: 10px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 82px; }
+.live-user { font-size: 9px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -84,6 +106,10 @@ nav { display: flex; gap: 5px; flex-wrap: wrap; }
         <button class="gold-btn" onclick="openModal('depositModal')">+</button>
     </div>
 </header>
+<div class="live-bar">
+    <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+    <div class="live-track" id="liveTrack"></div>
+</div>
 <div class="container">
     <div id="tab-cases" class="tab-content active"><h2>Выбери кейс</h2><div class="cases-grid" id="casesList"></div></div>
     <div id="tab-case-open" class="tab-content">
@@ -436,8 +462,25 @@ function confirmReceipt(idx) {
     } else notify("❌ Неверный код", "Запроси код подтверждения у админа <b>@FarmGoldEzz</b> после выкупа скина.");
 }
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-save(); renderCases();
+fuconst liveNicks = ["Kizaru_SO2", "SniperPro", "Danya777", "Vortex", "GhostKZ", "AwpKing", "Shadow", "BrawlTop", "NeonPlay", "SkillMaster", "ZeroTwo"];
+let liveDrops = [];
+function addLiveDrop(skin, user) {
+    liveDrops.unshift({ skin, user });
+    if (liveDrops.length > 14) liveDrops.pop();
+    const lt = document.getElementById('liveTrack');
+    if (lt) lt.innerHTML = liveDrops.map(d => `<div class="live-item ${d.skin.rarity}"><span style="font-size:20px;">${d.skin.emoji}</span><div class="live-info"><div class="live-sname">${d.skin.name}</div><div class="live-user">${d.user} • ${d.skin.price}G</div></div></div>`).join('');
+}
+function spawnBotDrop() {
+    const r = Math.random() * 100;
+    const pool = r < 55 ? allSkins.filter(s => s.price <= 45) : (r < 88 ? allSkins.filter(s => s.price > 45 && s.price <= 250) : allSkins.filter(s => s.price > 250));
+    const skin = pool[Math.floor(Math.random() * pool.length)];
+    const nick = liveNicks[Math.floor(Math.random() * liveNicks.length)];
+    addLiveDrop(skin, nick);
+}
+for (let i = 0; i < 8; i++) spawnBotDrop();
+setInterval(spawnBotDrop, 4500);
+    nction closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    save(); renderCases();
 </script>
 <footer style="max-width:900px;margin:30px auto 0;padding:15px;text-align:center;color:#94a3b8;font-size:12px;border-top:1px solid #1e2f5c;">
     <h1 style="font-size:14px;color:#f5b014;margin:0 0 6px;">MineEze — Кейсы SO2 и Апгрейды Standoff 2</h1>
