@@ -114,7 +114,16 @@ nav { display: flex; gap: 5px; flex-wrap: wrap; }
     <div id="tab-cases" class="tab-content active"><h2>Выбери кейс</h2><div class="cases-grid" id="casesList"></div></div>
     <div id="tab-case-open" class="tab-content">
         <div class="case-page-header"><button class="dark-btn" onclick="switchTab('cases')">← Назад</button><h2 id="openCaseTitle" style="color:var(--gold);margin:0;">Кейс</h2><div style="width:60px;"></div></div>
-        <div class="roulette-box"><div class="roulette-window"><div class="pointer"></div><div class="track" id="track"></div></div><button class="gold-btn" id="spinBtn" onclick="spinCase()">Открыть за <span id="openCasePrice">0</span> G</button></div>
+                <div class="roulette-box">
+            <div id="multSwitch" style="display:flex;justify-content:center;gap:8px;margin-bottom:10px;">
+                <button class="gold-btn" id="btnX1" onclick="setMult(1)">x1</button>
+                <button class="dark-btn" id="btnX3" onclick="setMult(3)">x3</button>
+            </div>
+            <div id="tracksWrap">
+                <div class="roulette-window"><div class="pointer"></div><div class="track" id="track0"></div></div>
+            </div>
+            <button class="gold-btn" id="spinBtn" onclick="spinCase()">Открыть за <span id="openCasePrice">0</span> G</button>
+                </div>
         <h3>Содержимое кейса:</h3><div class="contents-grid" id="caseContentsGrid"></div>
     </div>
     <div id="tab-upgrade" class="tab-content">
@@ -276,15 +285,25 @@ function switchTab(t) {
 function renderCases() {
     document.getElementById('casesList').innerHTML = cases.map(c => `<div class="case-card" onclick="openCase(${c.id})"><div class="case-icon">${c.icon}</div><div class="case-title">${c.name}</div><div class="case-range">${c.range}</div><div class="case-price-tag">${c.price} G</div></div>`).join('');
 }
+let openMult = 1;
+function setMult(m) {
+    if (spinning) return;
+    if (curCase && curCase.id === 5) m = 1;
+    openMult = m;
+    document.getElementById('btnX1').className = m === 1 ? 'gold-btn' : 'dark-btn';
+    document.getElementById('btnX3').className = m === 3 ? 'gold-btn' : 'dark-btn';
+    document.getElementById('openCasePrice').textContent = curCase.price * m;
+    fillTrack();
+}
 function openCase(id) {
     curCase = cases.find(c => c.id === id);
     document.getElementById('openCaseTitle').textContent = curCase.name;
-    document.getElementById('openCasePrice').textContent = curCase.price;
+    document.getElementById('multSwitch').style.display = curCase.id === 5 ? 'none' : 'flex';
     document.getElementById('caseContentsGrid').innerHTML = curCase.drops.map(d => {
         const s = allSkins.find(x => x.id === d.id);
         return `<div class="skin-card ${s.rarity}" style="min-width:auto;"><div class="chance-badge">${d.c}%</div><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
     }).join('');
-    fillTrack(); switchTab('case-open');
+    setMult(1); switchTab('case-open');
 }
 function getDrop(cObj) {
     let r = Math.random() * 100;
@@ -292,39 +311,57 @@ function getDrop(cObj) {
     return allSkins.find(s => s.id === cObj.drops[0].id);
 }
 function fillTrack() {
-    const tr = document.getElementById('track'); tr.style.transition = 'none'; tr.style.transform = 'translateX(0px)';
-    tr.innerHTML = Array.from({ length: 30 }, () => { const s = getDrop(curCase); return `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`; }).join('');
+    const wrap = document.getElementById('tracksWrap');
+    wrap.innerHTML = Array.from({ length: openMult }, (_, idx) => `<div class="roulette-window" style="margin:8px 0;"><div class="pointer"></div><div class="track" id="track${idx}"></div></div>`).join('');
+    for (let idx = 0; idx < openMult; idx++) {
+        const tr = document.getElementById('track' + idx);
+        tr.innerHTML = Array.from({ length: 30 }, () => { const s = getDrop(curCase); return `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`; }).join('');
+    }
 }
 function spinCase() {
     if (spinning) return;
-    if (balance < curCase.price) return notify("Недостаточно голды", "Пополни баланс через <b>@FarmGoldEzz</b> или введи промокод во вкладке «Бонусы».");
-        if (curCase.id === 5) {
+    if (curCase.id === 5) {
         const lastFree = localStorage.getItem('me_free_case');
         if (lastFree && Date.now() - lastFree < 86400000) return notify("Кейс недоступен", "Кейс «Халява» можно открывать раз в 24 часа!");
-        localStorage.setItem('me_free_case', Date.now());
-        }
-    balance -= curCase.price; save(); spinning = true; document.getElementById('spinBtn').disabled = true;
-    const tr = document.getElementById('track'); tr.style.transition = 'none'; tr.style.transform = 'translateX(0px)';
-    let html = '';
-    for (let i = 0; i < 45; i++) {
-        const s = getDrop(curCase); if (i === 35) wonSkin = s;
-        html += `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
     }
-    tr.innerHTML = html;
+    const totalCost = curCase.price * openMult;
+    if (balance < totalCost) return notify("Недостаточно голды", "Пополни баланс через <b>@FarmGoldEzz</b> или введи промокод во вкладке «Бонусы».");
+    if (curCase.id === 5) localStorage.setItem('me_free_case', Date.now());
+    balance = Number((balance - totalCost).toFixed(2)); save(); spinning = true; document.getElementById('spinBtn').disabled = true;
+    let wonList = [];
+    for (let idx = 0; idx < openMult; idx++) {
+        const tr = document.getElementById('track' + idx);
+        tr.style.transition = 'none'; tr.style.transform = 'translateX(0px)';
+        let html = '';
+        for (let i = 0; i < 45; i++) {
+            const s = getDrop(curCase); if (i === 35) wonList.push(s);
+            html += `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
+        }
+        tr.innerHTML = html;
+    }
     setTimeout(() => {
         const w = document.querySelector('.roulette-window').offsetWidth;
-        const pos = (35 * 150) - (w / 2) + 75 + (Math.floor(Math.random() * 70) - 35);
-        tr.style.transition = 'transform 5s cubic-bezier(0.12, 0.85, 0.2, 1)'; tr.style.transform = `translateX(-${pos}px)`;
+        for (let idx = 0; idx < openMult; idx++) {
+            const tr = document.getElementById('track' + idx);
+            const pos = (35 * 150) - (w / 2) + 75 + (Math.floor(Math.random() * 70) - 35);
+            tr.style.transition = `transform ${4.8 + idx * 0.25}s cubic-bezier(0.12, 0.85, 0.2, 1)`;
+            tr.style.transform = `translateX(-${pos}px)`;
+        }
         setTimeout(() => {
             spinning = false; document.getElementById('spinBtn').disabled = false;
-            hOpen.unshift({ cName: curCase.name, sName: wonSkin.name, price: wonSkin.price, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+            const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            wonList.forEach(s => {
+                hOpen.unshift({ cName: curCase.name, sName: s.name, price: s.price, time: t });
+                if (typeof addLiveDrop === 'function') addLiveDrop(s, 'Вы');
+            });
             save();
-            document.getElementById('winSkinDisplay').innerHTML = `<div class="skin-card ${wonSkin.rarity}" style="margin:0 auto;width:160px;"><div class="skin-emoji">${wonSkin.emoji}</div><div class="skin-name">${wonSkin.name}</div><div class="skin-price">${wonSkin.price} G</div></div>`;
-            document.getElementById('winSellBtn').textContent = `Продать (${wonSkin.price} G)`;
-            document.getElementById('winSellBtn').onclick = () => { balance += wonSkin.price; save(); closeModal('winModal'); };
-            document.getElementById('winKeepBtn').onclick = () => { inv.push(wonSkin); save(); closeModal('winModal'); };
+            const sumPrice = wonList.reduce((acc, s) => acc + s.price, 0);
+            document.getElementById('winSkinDisplay').innerHTML = `<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">` + wonList.map(s => `<div class="skin-card ${s.rarity}" style="min-width:92px;width:92px;height:105px;"><div class="skin-emoji" style="font-size:24px;">${s.emoji}</div><div class="skin-name" style="font-size:10px;">${s.name}</div><div class="skin-price" style="font-size:11px;">${s.price} G</div></div>`).join('') + `</div>`;
+            document.getElementById('winSellBtn').textContent = `Продать (${sumPrice} G)`;
+            document.getElementById('winSellBtn').onclick = () => { balance = Number((balance + sumPrice).toFixed(2)); save(); closeModal('winModal'); };
+            document.getElementById('winKeepBtn').onclick = () => { inv.push(...wonList); save(); closeModal('winModal'); };
             openModal('winModal');
-        }, 5100);
+        }, 5500);
     }, 50);
 }
 function toggleSort(who) {
