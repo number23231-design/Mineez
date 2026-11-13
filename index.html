@@ -501,6 +501,7 @@ function renderInv() {
 }
 function sell(i) { balance += inv[i].price; inv.splice(i, 1); save(); renderInv(); }
 function askWithdraw(i) {
+        if (inv[i].price < 10) return notify("Минимальный вывод — 10 G", "Скины дешевле <b>10 G</b> нельзя вывести. Продай этот скин на баланс или прокачай его в Апгрейде!");
     const s = inv[i], kop = Math.floor(Math.random() * 89) + 10, exactPrice = `${s.price}.${kop}`;
     document.getElementById('withdrawText').innerHTML = `1. Выстави любой недорогой скин на рынок Standoff 2 ровно за <b>${exactPrice} G</b>.<br>2. Нажми «Подтвердить вывод» ниже.<br>3. Скинь скрин лота и скрин истории выводов админу <b>@FarmGoldEzz</b>.`;
     document.getElementById('confirmWithBtn').onclick = () => {
