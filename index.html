@@ -202,6 +202,10 @@ nav { display: flex; gap: 5px; flex-wrap: wrap; }
 </div></div>
 <script>
 const allSkins = [
+        { id: 101, name: "G22 «Pixel»", price: 0.1, rarity: "common", emoji: "🔫" },
+    { id: 102, name: "P350 «Neon»", price: 0.3, rarity: "common", emoji: "🔫" },
+    { id: 103, name: "Tec-9 «Rust»", price: 0.5, rarity: "common", emoji: "🔫" },
+    { id: 104, name: "UMP45 «Pixel»", price: 1, rarity: "common", emoji: "🔫" },
     { id: 1, name: "P350 «Forest»", price: 2, rarity: "common", emoji: "🔫" }, { id: 2, name: "SM1014 «Path»", price: 4, rarity: "common", emoji: "🔫" },
     { id: 3, name: "MP5 «Project»", price: 6, rarity: "uncommon", emoji: "🔫" }, { id: 4, name: "MP7 «Offroad»", price: 8, rarity: "uncommon", emoji: "🔫" },
     { id: 5, name: "F/S «Venom»", price: 12, rarity: "rare", emoji: "🔫" }, { id: 6, name: "G22 «Nest»", price: 14, rarity: "rare", emoji: "🔫" },
@@ -222,6 +226,10 @@ const allSkins = [
     { id: 35, name: "Butterfly «Legacy»", price: 3200, rarity: "arcane", emoji: "🦋" }
 ];
 const cases = [
+        { id: 6, name: "Кейс «Бомж»", price: 1, icon: "🗑️", range: "От 0.1 G до 20 G", drops: [
+        { id: 101, c: 32 }, { id: 102, c: 23 }, { id: 103, c: 15 }, { id: 104, c: 10 },
+        { id: 1, c: 9 }, { id: 2, c: 5.5 }, { id: 3, c: 3.5 }, { id: 5, c: 1.5 }, { id: 7, c: 0.5 }
+    ]},
     { id: 0, name: "Кейс «Стартовый»", price: 9, icon: "📦", range: "От 2 G до 100 G", drops: [
         { id: 1, c: 34 }, { id: 2, c: 24 }, { id: 3, c: 16 }, { id: 4, c: 10 }, { id: 5, c: 6 }, { id: 6, c: 4 }, { id: 9, c: 3 }, { id: 10, c: 1.5 }, { id: 14, c: 1.5 }
     ]},
