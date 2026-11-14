@@ -470,9 +470,8 @@ function spinFortune() {
     }, 50);
 }
 const DB_URL = "https://mineeze-e8215-default-rtdb.firebaseio.com";
-
 async function applyPromo() {
-    const inp = document.getElementById('promoInp');
+    const inp = document.getElementById('promoInput');
     const code = inp.value.trim().toUpperCase();
     if (!code) return notify("Пустое поле", "Введи промокод!");
     if (code === "ADMIN777") { inp.value = ''; openModal('adminModal'); return; }
