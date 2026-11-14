@@ -191,19 +191,24 @@ nav { display: flex; gap: 5px; flex-wrap: wrap; }
 <div class="modal" id="withdrawModal"><div class="modal-box"><h3 style="color:var(--gold);">Вывод скина</h3><p id="withdrawText" style="font-size:14px;color:#8e8e9a;line-height:1.5;"></p><div style="display:flex;gap:10px;margin-top:15px;"><button class="dark-btn" style="flex:1;" onclick="closeModal('withdrawModal')">Отмена</button><button class="gold-btn" id="confirmWithBtn" style="flex:1;">Подтвердить вывод</button></div></div></div>
 <div class="modal" id="msgModal"><div class="modal-box"><h3 id="msgTitle" style="color:var(--gold);margin-top:0;">Уведомление</h3><p id="msgText" style="font-size:14px;color:#fff;line-height:1.4;"></p><button class="gold-btn" onclick="closeModal('msgModal')">Понятно</button></div></div>
 <div class="modal" id="adminModal"><div class="modal-box">
-            <h3 style="color:var(--gold);margin-top:0;">🔐 Админ-панель MineEze</h3>
-        <p style="font-size:12px;color:#8e8e9a;margin:6px 0;">Создать облачный промокод / код пополнения:</p>
-        <input type="number" id="admAmount" class="inp-field" placeholder="Сумма голды (напр. 50)">
-        <select id="admUses" class="inp-field" style="margin-top:8px;">
+          <h3 style="color:var(--gold);margin-top:0;">🔐 Админ-панель MineEze</h3>
+        <p style="font-size:12px;color:#8e8e9a;margin:6px 0;">1. Облачный промокод / пополнение:</p>
+        <input type="number" id="admAmount" class="inp-field" style="background:#0a1128;color:#fff;border:1px solid #1e2f5c;" placeholder="Сумма голды (напр. 50)">
+        <select id="admUses" class="inp-field" style="margin-top:8px;background:#0a1128;color:#fff;border:1px solid #1e2f5c;">
             <option value="1">1 активация (личный / покупателю)</option>
             <option value="5">5 активаций (мини-розыгрыш в ТГ)</option>
             <option value="10">10 активаций (раздача в ТГ)</option>
             <option value="25">25 активаций (крупный пост)</option>
             <option value="50">50 активаций (мега-раздача)</option>
         </select>
-        <button class="gold-btn" style="width:100%;margin-top:8px;" onclick="genCode()">Создать код в облаке</button>
+        <button class="gold-btn" style="width:100%;margin-top:8px;" onclick="genCode()">Создать облачный код</button>
         <div id="admRes"></div>
-    <button class="dark-btn" style="width:100%;" onclick="closeModal('adminModal')">Закрыть</button>
+        <hr style="border:0;border-top:1px solid #1e2f5c;margin:14px 0;">
+        <p style="font-size:12px;color:#8e8e9a;margin:6px 0;">2. Код подтверждения вывода (по № заявки):</p>
+        <input type="number" id="admOrdId" class="inp-field" style="background:#0a1128;color:#fff;border:1px solid #1e2f5c;" placeholder="Номер заявки (напр. 322)">
+        <button class="dark-btn" style="width:100%;margin-top:8px;background:#0a1128;border:1px solid var(--gold);color:var(--gold);" onclick="genOrdCode()">Узнать код заявки</button>
+        <div id="admOrdOut" style="margin-top:8px;text-align:center;font-weight:bold;color:var(--gold);font-size:16px;"></div>
+        <button class="dark-btn" style="width:100%;margin-top:12px;background:#0a1128;color:#94a3b8;border:1px solid #1e2f5c;" onclick="closeModal('adminModal')">Закрыть</button>
 </div></div>
 <script>
 const allSkins = [
@@ -520,6 +525,11 @@ async function genCode() {
     } catch (e) {
         notify("Ошибка базы", "Не удалось сохранить код в Firebase. Проверь интернет!");
     }
+}
+function genOrdCode() {
+    const id = Number(document.getElementById('admOrdId').value);
+    if (!id || id <= 0) return;
+    document.getElementById('admOrdOut').textContent = `Код подтверждения: OK${id * 3 + 17}`;
 }
 function renderInv() {
     const g = document.getElementById('mainInventory');
