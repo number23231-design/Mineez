@@ -360,7 +360,7 @@ function openCase(id) {
     document.getElementById('multSwitch').style.display = curCase.id === 5 ? 'none' : 'flex';
     document.getElementById('caseContentsGrid').innerHTML = curCase.drops.map(d => {
         const s = allSkins.find(x => x.id === d.id);
-        return `<div class="skin-card ${s.rarity}" style="min-width:auto;"><div class="chance-badge">${d.c}%</div><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
+        return `<div class="skin-card ${s.rarity}" style="min-width:auto;"><div class="chance-badge">${d.c}%</div><div class="skin-emoji">${skinArt(s)}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
     }).join('');
     setMult(1); switchTab('case-open');
 }
@@ -374,7 +374,7 @@ function fillTrack() {
     wrap.innerHTML = Array.from({ length: openMult }, (_, idx) => `<div class="roulette-window" style="margin:8px 0;"><div class="pointer"></div><div class="track" id="track${idx}"></div></div>`).join('');
     for (let idx = 0; idx < openMult; idx++) {
         const tr = document.getElementById('track' + idx);
-        tr.innerHTML = Array.from({ length: 30 }, () => { const s = getDrop(curCase); return `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`; }).join('');
+        tr.innerHTML = Array.from({ length: 30 }, () => { const s = getDrop(curCase); return `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${skinArt(s)}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`; }).join('');
     }
 }
 function spinCase() {
@@ -394,7 +394,7 @@ function spinCase() {
         let html = '';
         for (let i = 0; i < 45; i++) {
             const s = getDrop(curCase); if (i === 35) wonList.push(s);
-            html += `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
+            html += `<div class="skin-card ${s.rarity}"><div class="skin-emoji">${skinArt(s)}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`;
         }
         tr.innerHTML = html;
     }
@@ -437,15 +437,15 @@ function renderUpgrade() {
     let myList = inv.map((s, i) => ({ ...s, origIdx: i }));
     if (sortMyMode === 1) myList.sort((a, b) => a.price - b.price);
     if (sortMyMode === 2) myList.sort((a, b) => b.price - a.price);
-    document.getElementById('upgradeMyInv').innerHTML = myList.length ? myList.map(s => `<div class="skin-card ${s.rarity} selectable" style="min-width:auto;" onclick="setMy(${s.origIdx})"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`).join('') : '<p style="color:#8e8e9a;font-size:12px;">Пусто</p>';
+    document.getElementById('upgradeMyInv').innerHTML = myList.length ? myList.map(s => `<div class="skin-card ${s.rarity} selectable" style="min-width:auto;" onclick="setMy(${s.origIdx})"><div class="skin-emoji">${skinArt(s)}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`).join('') : '<p style="color:#8e8e9a;font-size:12px;">Пусто</p>';
 
     let tList = [...allSkins];
     tList.sort((a, b) => sortTargetMode === 1 ? a.price - b.price : b.price - a.price);
-    document.getElementById('upgradeTargets').innerHTML = tList.map(s => `<div class="skin-card ${s.rarity} selectable" style="min-width:auto;" onclick="setTarget(${s.id})"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`).join('');
+    document.getElementById('upgradeTargets').innerHTML = tList.map(s => `<div class="skin-card ${s.rarity} selectable" style="min-width:auto;" onclick="setTarget(${s.id})"><div class="skin-emoji">${skinArt(s)}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div></div>`).join('');
 }
 function setMy(i) {
     if (upgrading) return; myIdx = i; const s = inv[i];
-    document.getElementById('myUpgradeSlot').innerHTML = `<div class="skin-emoji">${s.emoji}</div><b>${s.name}</b><div class="skin-price">${s.price} G</div>`; calcChance();
+    document.getElementById('myUpgradeSlot').innerHTML = `<div class="skin-emoji">${skinArt(s)}</div><b>${s.name}</b><div class="skin-price">${s.price} G</div>`; calcChance();
 }
 function setTarget(id) {
     if (upgrading) return; targetSkin = allSkins.find(s => s.id === id);
@@ -574,7 +574,7 @@ function genOrdCode() {
 }
 function renderInv() {
     const g = document.getElementById('mainInventory');
-    g.innerHTML = inv.length ? inv.map((s, i) => `<div class="skin-card ${s.rarity}" style="height:auto;"><div class="skin-emoji">${s.emoji}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div><div class="inv-actions"><button class="btn-small btn-sell" onclick="sell(${i})">Продать</button><button class="btn-small btn-withdraw" onclick="askWithdraw(${i})">Вывести</button></div></div>`).join('') : '<p style="color:#8e8e9a;">Инвентарь пуст.</p>';
+    g.innerHTML = inv.length ? inv.map((s, i) => `<div class="skin-card ${s.rarity}" style="height:auto;"><div class="skin-emoji">${skinArt(s)}</div><div class="skin-name">${s.name}</div><div class="skin-price">${s.price} G</div><div class="inv-actions"><button class="btn-small btn-sell" onclick="sell(${i})">Продать</button><button class="btn-small btn-withdraw" onclick="askWithdraw(${i})">Вывести</button></div></div>`).join('') : '<p style="color:#8e8e9a;">Инвентарь пуст.</p>';
 }
 function sell(i) { balance += inv[i].price; inv.splice(i, 1); save(); renderInv(); }
 function askWithdraw(i) {
