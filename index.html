@@ -89,6 +89,15 @@ nav { display: flex; gap: 5px; flex-wrap: wrap; }
 .live-info { overflow: hidden; text-align: left; }
 .live-sname { font-size: 10px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 82px; }
 .live-user { font-size: 9px; color: var(--muted); }
+    .skin-svg { width: 78px; height: 42px; margin: 2px auto; filter: drop-shadow(0 0 6px currentColor); transition: transform .2s; }
+.skin-card:hover .skin-svg { transform: scale(1.08) rotate(-3deg); }
+.skin-card.common .skin-svg { color: #94a3b8; }
+.skin-card.uncommon .skin-svg { color: #38bdf8; }
+.skin-card.rare .skin-svg { color: #3b82f6; }
+.skin-card.epic .skin-svg { color: #a855f7; }
+.skin-card.legendary .skin-svg { color: #ec4899; }
+.skin-card.arcane .skin-svg { color: #ef4444; }
+.skin-card.nameless .skin-svg { color: #f5b014; }
 </style>
 </head>
 <body>
@@ -270,6 +279,28 @@ const cases = [
         { id: 15, c: 0.05 }, { id: 22, c: 0.05 }, { id: 27, c: 0.05 }, { id: 31, c: 0.05 }
     ]}
 ];
+    function skinArt(s) {
+    const n = s.name.toLowerCase();
+    let path = '';
+    if (n.includes('karambit')) {
+        path = '<path d="M18 30 C14 24, 18 14, 30 12 L48 16 C56 10, 74 10, 86 22 C76 17, 62 18, 52 24 L36 22 C28 22, 26 28, 30 32 A6 6 0 1 1 18 30 Z"/>';
+    } else if (n.includes('butterfly')) {
+        path = '<path d="M12 18 L44 16 L46 21 L12 22 Z M12 28 L44 26 L46 31 L12 32 Z M47 20 L88 18 L94 23 L86 27 L47 27 Z"/>';
+    } else if (n.includes('m9') || n.includes('kunai') || n.includes('scorpion') || n.includes('jkommando')) {
+        path = '<path d="M10 21 L34 21 L36 16 L40 16 L40 31 L36 31 L34 26 L10 26 Z M41 19 L84 19 L94 23 L84 27 L41 27 Z M46 21 L76 21 L76 23 L46 23 Z"/>';
+    } else if (n.includes('awm') || n.includes('m40')) {
+        path = '<path d="M6 22 L22 20 L34 20 L38 14 L56 14 L58 19 L96 19 L96 22 L62 22 L58 26 L46 26 L44 33 L38 33 L40 26 L26 26 L18 33 L6 33 Z"/>';
+    } else if (n.includes('akr')) {
+        path = '<path d="M6 21 L24 19 L46 19 L50 15 L64 15 L66 19 L92 19 L92 22 L68 22 L64 26 L56 26 L60 36 L52 37 L48 26 L38 26 L35 34 L29 34 L31 26 L22 26 L12 34 L6 33 Z"/>';
+    } else if (n.includes('m4') || n.includes('m16') || n.includes('famas')) {
+        path = '<path d="M6 21 L26 21 L32 16 L58 16 L60 20 L92 20 L92 23 L64 23 L60 26 L54 26 L55 36 L48 36 L47 26 L36 26 L33 34 L27 34 L29 26 L22 26 L10 33 L6 32 Z"/>';
+    } else if (n.includes('mp5') || n.includes('mp7') || n.includes('ump') || n.includes('p90') || n.includes('sm1014')) {
+        path = '<path d="M10 20 L30 20 L34 16 L62 16 L64 20 L86 20 L86 23 L66 23 L62 27 L54 27 L54 36 L48 36 L48 27 L36 27 L33 35 L27 35 L29 27 L14 29 L10 28 Z"/>';
+    } else {
+        path = '<path d="M24 16 L72 16 L74 23 L48 23 L42 36 L30 36 L35 23 L24 23 Z"/>';
+    }
+    return `<svg class="skin-svg" viewBox="0 0 100 46" fill="currentColor">${path}</svg>`;
+    }
 const _0x1a = {
     "R0dGRg==": 200,
     "TUUxMC1BMQ==": 10, "TUUxMC1CMg==": 10, "TUUxMC1DMw==": 10, "TUUxMC1ENA==": 10, "TUUxMC1FNQ==": 10,
