@@ -460,8 +460,7 @@ function calcChance() {
 function doUpgrade() {
     if (upgrading) return; upgrading = true;
     const btn = document.getElementById('upgradeBtn'), arr = document.getElementById('upgradeArrow'); btn.disabled = true;
-            const visC = Number(btn.dataset.c), realC = Math.min(visC, 30), win = (Math.random() * 100) < realC;
-    const stop = win ? (Math.random() * (visC / 100) * 360) : ((visC / 100) * 360 + Math.random() * (360 - (visC / 100) * 360));
+        const c = Number(btn.dataset.c), stop = Math.random() * 360, win = stop <= (c / 100) * 360;
     arr.style.transition = 'none'; arr.style.transform = 'rotate(0deg)';
     setTimeout(() => {
         arr.style.transition = 'transform 4s cubic-bezier(0.15, 0.85, 0.25, 1)'; arr.style.transform = `rotate(${1800 + stop}deg)`;
