@@ -254,9 +254,9 @@ const cases = [
         { id: 101, c: 50 }, { id: 102, c: 15 }, { id: 103, c: 10 },
         { id: 104, c: 10 }, { id: 1, c: 7 }, { id: 2, c: 3.5 }, { id: 3, c: 2 }, { id: 4, c: 1 }, { id: 5, c: 1.5 }
     ]},
-    { id: 0, name: "Кейс «Стартовый»", price: 9, icon: "📦", range: "От 2 G до 35 G", drops: [
-        { id: 1, c: 30 }, { id: 2, c: 18 }, { id: 3, c: 14 },
-        { id: 5, c: 17 }, { id: 105, c: 10 }, { id: 7, c: 5 }, { id: 9, c: 6 }
+        { id: 0, name: "Кейс «Стартовый»", price: 9, icon: "📦", range: "От 2 G до 35 G", drops: [
+        { id: 1, c: 38 }, { id: 2, c: 24 }, { id: 3, c: 16 },
+        { id: 5, c: 11 }, { id: 105, c: 6 }, { id: 7, c: 3 }, { id: 9, c: 2 }
     ]},
     { id: 1, name: "Кейс «Золотой»", price: 29, icon: "💼", range: "От 8 G до 115 G", drops: [
         { id: 4, c: 34 }, { id: 5, c: 22 }, { id: 105, c: 17 },
@@ -460,7 +460,7 @@ function calcChance() {
 function doUpgrade() {
     if (upgrading) return; upgrading = true;
     const btn = document.getElementById('upgradeBtn'), arr = document.getElementById('upgradeArrow'); btn.disabled = true;
-    const c = Number(btn.dataset.c), stop = Math.random() * 360, win = stop <= (c / 100) * 360;
+        const c = Math.min(Number(btn.dataset.c), 30), stop = Math.random() * 360, win = stop <= (c / 100) * 360;
     arr.style.transition = 'none'; arr.style.transform = 'rotate(0deg)';
     setTimeout(() => {
         arr.style.transition = 'transform 4s cubic-bezier(0.15, 0.85, 0.25, 1)'; arr.style.transform = `rotate(${1800 + stop}deg)`;
